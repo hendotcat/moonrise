@@ -1,4 +1,14 @@
+@use "sass:map";
 @use "sass:math";
+
+$day: math.pow(2, 12) * 1ms;
+
+$emoji: (
+  "🌘",
+  "🌞",
+  "🌓",
+  "🌞",
+);
 
 // $or is the radius of the outer
 // circle which circumscribes the
@@ -172,13 +182,51 @@ $sky: (
 }
 
 :root {
+  --skyColor: #010;
+  --seaColor: midnightblue;
   --size: 100vmin;
+}
+
+$c: 100 / length($emoji);
+@keyframes body {
+  @for $i from 1 through length($emoji) {
+    $e: nth($emoji, $i);
+    $a: ($i - 1) * $c * 1%;
+    $z: $a + $c - 0.01;
+
+    $seaBlendMode: screen;
+    $seaColor: blue;
+    $skyColor: lightskyblue;
+    $skyBlendMode: normal;
+    @if $i % 2 == 1 {
+      $seaBlendMode: luminosity;
+      $seaColor: midnightblue;
+      $skyBlendMode: luminosity;
+      $skyColor: black;
+    }
+
+    #{$a} {
+      --seaBlendMode: #{$seaBlendMode};
+      --seaColor: #{$seaColor};
+      --seaImage: #{moon($e, 112)};
+      --skyBlendMode: #{$skyBlendMode};
+      --skyColor: #{$skyColor};
+      --skyImage: #{moon($e, -64)};
+    }
+
+    #{$z} {
+      --seaBlendMode: #{$seaBlendMode};
+      --seaColor: #{$seaColor};
+      --seaImage: #{moon($e, 112)};
+      --skyBlendMode: #{$skyBlendMode};
+      --skyColor: #{$skyColor};
+      --skyImage: #{moon($e, -64)};
+    }
+  }
 }
 
 @media (min-width: 512px) and (min-height: 512px) {
   :root {
-    --sky: #010;
-    --sea: blue;
     --size: 80vmin;
   }
 }
@@ -199,9 +247,15 @@ body {
   left: 50%;
   background: linear-gradient(
     180deg,
-    var(--sky) 50%,
-    var(--sea) 50%
+    var(--skyColor) 50%,
+    var(--seaColor) 50%
   );
+
+  animation-name: body;
+  animation-duration: $day * 0.5 * length($emoji);
+  animation-direction: normal;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 
 body::before,
@@ -215,42 +269,43 @@ body::after {
 }
 
 @keyframes sky {
-  @for $i from 0 through 100 {
-    #{$i * 1%} {
-      clip-path: fix($sky, $i / 100);
-      transform: rotate($i / 100 * -360deg);
+  @for $i from 0 through 50 {
+    #{$i * 2%} {
+      clip-path: fix($sky, $i / 75);
+      transform: rotate($i / 75 * -360deg);
     }
   }
 }
 
 @keyframes sea {
-  @for $i from 0 through 100 {
-    #{$i * 1%} {
-      clip-path: fix($sea, (100 - $i) / 100 * -1);
-      transform: rotate($i / -100 * -360deg) scaleX(-1);
+  @for $i from 0 through 50 {
+    #{$i * 2%} {
+      clip-path: fix($sea, (75 - $i) / 75 * -1);
+      transform: rotate($i / -75 * -360deg) scaleX(-1);
     }
   }
 }
 
 body::before {
-  background-image: moon("🌘", -64);
+  background-image: var(--skyImage);
   animation-name: sky;
-  animation-duration: math.pow(2, 13) * 1ms;
+  animation-duration: $day / 2;
   animation-direction: normal;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
   transform-origin: center;
-  mix-blend-mode: luminosity;
+  mix-blend-mode: var(--skyBlendMode);
 }
 
 body::after {
-  background-image: moon("🌘", 112);
+  background-image: var(--seaImage);
   animation-name: sea;
-  animation-duration: math.pow(2, 13) * 1ms;
+  animation-duration: $day / 2;
   animation-direction: normal;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
   transform-origin: center;
-  mix-blend-mode: luminosity;
+  mix-blend-mode: var(--seaBlendMode);
+  filter: blur(0.5vmin);
 }
 
