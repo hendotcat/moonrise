@@ -83,17 +83,52 @@ $sky: (
   @return url($prefix + $encoded);
 }
 
+@function e($n, $p, $c: ()) {
+  $html: "<#{$n}";
+  @each $k,$v in $p {
+    $html: "#{$html} #{$k}=\"#{$v}\"";
+  }
+  @if (type-of($c) == "string") {
+    $html: "#{$html}>#{$c}</#{$n}>";
+  } @else {
+    $html: "#{$html} />";
+  }
+  @return $html;
+}
+
 @function moon($e, $a: 0) {
-  @return svg-url(#{
-    "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 500 500'>" +
-      "<path transform='rotate(#{$a}, 250, 250)' id='curve' fill='none' d='M243.2, 382.4c-74.8,0-135.5-60.7-135.5-135.5s60.7-135.5,135.5-135.5s135.5, 60.7, 135.5,135.5 S318, 382.4, 243.2, 382.4z' />" +
-      "<text x='0' font-size='84'>" +
-        "<textPath xlink:href='#curve'>" +
-          $e +
-        "</textPath>" +
-      "</text>" +
-    "</svg>"
-  });
+  @return svg-url(
+    e(
+      "svg",
+      (
+        "xmlns": "http://www.w3.org/2000/svg",
+        "xmlns:xlink": "http://www.w3.org/1999/xlink",
+        "viewBox": "0 0 500 500",
+      ),
+      e(
+        "path",
+        (
+          "transform": "rotate(#{$a}, 250, 250)" ,
+          "id": "curve",
+          "fill": "none",
+          "d": "M243.2, 382.4c-74.8,0-135.5-60.7-135.5-135.5s60.7-135.5,135.5-135.5s135.5, 60.7, 135.5,135.5 S318, 382.4, 243.2, 382.4z",
+        )
+      ) + e(
+        "text",
+        (
+          "x": "0",
+          "font-size": "84",
+        ),
+        e(
+          "textPath",
+          (
+            "xlink:href": "#curve",
+          ),
+          $e
+        )
+      )
+    )
+  );
 }
 
 @function cpx($a, $r) {
@@ -138,12 +173,12 @@ $sky: (
 
 :root {
   --size: 100vmin;
-  --snow: snow;
-  --tree: saddlebrown;
 }
 
 @media (min-width: 512px) and (min-height: 512px) {
   :root {
+    --sky: #010;
+    --sea: blue;
     --size: 80vmin;
   }
 }
@@ -164,8 +199,8 @@ body {
   left: 50%;
   background: linear-gradient(
     180deg,
-    black 50%,
-    blue 50%
+    var(--sky) 50%,
+    var(--sea) 50%
   );
 }
 
