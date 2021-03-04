@@ -1,97 +1,50 @@
 @use "sass:map";
 @use "sass:math";
 
-// $or is the radius of the outer
-// circle which circumscribes the
-// square and $ir is the radius
-// of the inner circle inside it
-// +------------+
-// |    x  x    |
-// | x+------+x |
-// |x |      | x|
-// |x |      | x|
-// | x+------+x |
-// |    x  x    |
-// +------------+
-$or: math.sqrt(
-  math.pow(100, 2) * 2
-) / 2;
-$ir: 50;
-
-$sea: (
-  (3 * math.$pi) / 4,
-  math.$pi / 4,
-  0,
-  math.$pi,
-);
-
-$sky: (
-  math.$pi,
-  math.$pi * 2,
-  (math.$pi * 7) / 4,
-  (math.$pi * 5) / 4,
-);
-
 @function arc($cx, $cy, $r) {
   @return "M #{$cx - $r}, #{$cy} a #{$r},#{$r} 0 1,0 #{$r * 2},0 a #{$r},#{$r} 0 1,0 #{$r * -2},0";
 }
 
-@function cpx($a, $r) {
-  @return math.cos($a) * $r;
-}
-
-@function cpy($a, $r) {
-  @return math.sin($a) * $r;
-}
-
-@function ox($a) {
-  @return cpx($a, $or) + 50%;
-}
-
-@function oy($a) {
-  @return cpy($a, $or) + 50%;
-}
-
-@function ix($a) {
-  @return cpx($a, $ir) + 50%;
-}
-
-@function iy($a) {
-  @return cpy($a, $ir) + 50%;
-}
-
-@function fix($o, $p) {
-  $polygon: ();
-  @for $i from 1 through 4 {
-    $a: nth($o, $i);
-    $a: $a + (math.$pi * 2) * $p;
-    $polygon: append(
-      $polygon,
-      ox($a) oy($a),
-      $separator: comma
-    );
-  }
-  @return polygon(
-    $polygon
+@function moon($a) {
+  @return svg(
+    0, 0, 128, 128,
+    html(
+      "path",
+      (
+        "id": "circle",
+        "d": arc(64, 64, 32),
+        "fill": "transparent",
+        // "stroke": "blue",
+        // "stroke-width": "2",
+      ),
+      html(
+        "animateTransform",
+        (
+          "attributeName": "transform",
+          "attributeType": "XML",
+          "type": "rotate",
+          "from": "#{$a - 4} 64 64",
+          "to": "#{$a - 4 + 270} 64 64",
+          "dur": "#{math.pow(2, 14) * 1ms}",
+          "repeatCount": "indefinite",
+        )
+      )
+    ) +
+    html(
+      "text",
+      (
+        "x": "0",
+        "font-size": "16",
+      ),
+      html(
+        "textPath",
+        (
+          "xlink:href": "#circle",
+        ),
+        "🌖"
+      )
+    )
   );
-}
-
-@keyframes sea {
-  @for $i from 0 through 100 {
-    #{$i * 1%} {
-      clip-path: fix($sea, (100 - $i) / 100 * -1);
-      transform: rotate($i / -100 * -360deg) scaleX(-1);
-    }
-  }
-}
-
-@keyframes sky {
-  @for $i from 0 through 100 {
-    #{$i * 1%} {
-      clip-path: fix($sky, $i / 100);
-      transform: rotate($i / 100 * -360deg);
-    }
-  }
 }
 
 html {
@@ -107,6 +60,11 @@ body {
   top: 50%;
   transform: translate(-50%, -50%);
   left: 50%;
+  background: linear-gradient(
+    180deg,
+    #010 46%,
+    midnightblue 52%
+  );
 }
 
 body::before,
@@ -120,57 +78,28 @@ body::after {
 }
 
 body::before {
-  background-color: snow;
-
-  background-image: svg(0, 0, 128, 128, html("path", (
-    "id": "circle",
-    "d": arc(64, 64, 32),
-    "fill": "transparent",
-    "stroke": "blue",
-    "stroke-width": "2",
-    "transform": "rotate(180, 64, 64)" ,
-  )) + html("text", (
-    "x": "0",
-    "font-size": "16",
-  ), html("textPath", (
-    "xlink:href": "#circle",
-  ), "🌖")));
-
+  background-image: moon(0);
   background-repeat: no-repeat;
-
-  animation-name: sky;
-  animation-duration: 2048ms;
-  animation-direction: normal;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  transform-origin: center;
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100% 50%,
+    0% 50%,
+  );
+  mix-blend-mode: luminosity;
 }
 
 body::after {
-
-  background-color: cyan;
-
-  background-image: svg(0, 0, 128, 128, html("path", (
-    "id": "circle",
-    "d": arc(64, 64, 32),
-    "fill": "transparent",
-    "stroke": "blue",
-    "stroke-width": "2",
-    "transform": "rotate(-180, 64, 64)" ,
-  )) + html("text", (
-    "x": "0",
-    "font-size": "16",
-  ), html("textPath", (
-    "xlink:href": "#circle",
-  ), "🌖")));
-
+  background-image: moon(180);
   background-repeat: no-repeat;
-
-  animation-name: sea;
-  animation-duration: 2048ms;
-  animation-direction: normal;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  transform-origin: center;
+  clip-path: polygon(
+    0% 50%,
+    100% 50%,
+    100% 100%,
+    0% 100%,
+  );
+  transform: scaleX(-1);
+  mix-blend-mode: luminosity;
+  filter: blur(0.5vmin);
 }
 
