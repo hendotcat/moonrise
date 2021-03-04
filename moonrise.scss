@@ -86,17 +86,6 @@ $moons: (
         "font-size": "16",
       ),
       $textPaths
-    ) + 
-    html(
-      "animateTransform",
-      (
-        "id": "global",
-        "attributeName": "transform",
-        "attributeType": "XML",
-        "type": "none",
-        "dur": "#{length($moons) * $time}",
-        "repeatCount": "indefinite",
-      )
     )
   );
 }
