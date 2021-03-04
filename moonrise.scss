@@ -91,25 +91,24 @@ $moons: (
 }
 
 html {
-  background-image: linear-gradient(
-    180deg,
-    #010 46%,
-    midnightblue 52%
-  );
   background-repeat: none;
   height: 100vh;
   overflow: hidden;
 }
 
 body {
-  margin: 0;
-  width: 80vmin;
-  height: 80vmin;
-  overflow: hidden;
   position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  left: 50%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image: linear-gradient(
+    180deg,
+    #010 46%,
+    midnightblue 52%
+  );
+  margin: 0;
+  overflow: hidden;
 }
 
 body::before,
@@ -120,6 +119,8 @@ body::after {
   right: 0;
   bottom: 0;
   content: "";
+  background-size: 80vmin 80vmin;
+  background-position: center;
 }
 
 body::before {
