@@ -14,7 +14,8 @@
     "url": "https://github.com/hendotcat/moonrise.git"
   },
   "files": [
-    "demo-512x512.mp4"
+    "demo-512x512.mp4",
+    "opengraph-1200x630.png"
   ],
   "dependencies": {
     "@hendotcat/zoetrope": "latest"
