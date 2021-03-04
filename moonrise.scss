@@ -1,21 +1,63 @@
 @use "sass:map";
 @use "sass:math";
 
+$time: math.pow(2, 14) * 1ms;
+
+$moons: (
+  🌕
+  🌖
+  🌗
+  🌘
+  🌑
+  🌒
+  🌓
+  🌔
+);
+
 @function arc($cx, $cy, $r) {
   @return "M #{$cx - $r}, #{$cy} a #{$r},#{$r} 0 1,0 #{$r * 2},0 a #{$r},#{$r} 0 1,0 #{$r * -2},0";
 }
 
 @function moon($a) {
+  $textPaths: "";
+
+  @for $i from 1 through length($moons) {
+    $m: nth($moons, $i);
+
+    $next: $i - 1;
+    @if $next < 1 {
+      $next: length($moons);
+    }
+
+    $textPaths: $textPaths + html(
+      "textPath",
+      (
+        "xlink:href": "#circle",
+        "visibility": "hidden",
+      ),
+      $m + html(
+        "set",
+        (
+          "id": "moon#{$i}",
+          "attributeName": "visibility",
+          "begin": "#{$time * ($i - 1)}; moon#{$next}.end",
+          "dur": "#{$time}",
+          "to": "visible",
+        )
+      )
+    );
+  }
+
+  @debug $textPaths;
+
   @return svg(
     0, 0, 128, 128,
     html(
       "path",
       (
         "id": "circle",
-        "d": arc(64, 64, 32),
+        "d": arc(64, 64, 56),
         "fill": "transparent",
-        // "stroke": "blue",
-        // "stroke-width": "2",
       ),
       html(
         "animateTransform",
@@ -25,7 +67,7 @@
           "type": "rotate",
           "from": "#{$a - 4} 64 64",
           "to": "#{$a - 4 + 270} 64 64",
-          "dur": "#{math.pow(2, 14) * 1ms}",
+          "dur": "#{$time}",
           "repeatCount": "indefinite",
         )
       )
@@ -36,12 +78,17 @@
         "x": "0",
         "font-size": "16",
       ),
-      html(
-        "textPath",
-        (
-          "xlink:href": "#circle",
-        ),
-        "🌖"
+      $textPaths
+    ) + 
+    html(
+      "animateTransform",
+      (
+        "id": "global",
+        "attributeName": "transform",
+        "attributeType": "XML",
+        "type": "none",
+        "dur": "#{length($moons) * $time}",
+        "repeatCount": "indefinite",
       )
     )
   );
